@@ -1,0 +1,11 @@
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+node_modules/
+.terraform/
+*.tfstate
+*.tfstate.*
+cloudflared/*.json
+cloudflared/*token*

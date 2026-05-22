@@ -1,0 +1,36 @@
+# Example only. Adapt to the existing Cloudflare Terraform module style.
+# No real Cloudflare IDs or secrets are committed here.
+
+variable "cf_account_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "cf_zone_id" {
+  type      = string
+  sensitive = true
+}
+
+variable "cctv_tunnel_id" {
+  type    = string
+  default = "c3d6aea4-15d5-4178-ba0c-b463cd908205"
+}
+
+variable "cctv_hostname" {
+  type    = string
+  default = "cctv.zeaz.dev"
+}
+
+variable "cctv_origin_service" {
+  type    = string
+  default = "http://127.0.0.1:9292"
+}
+
+# Example pattern only. Use the resource type/provider version already used by your Cloudflare platform repo.
+# resource "cloudflare_record" "cctv" {
+#   zone_id = var.cf_zone_id
+#   name    = "cctv"
+#   type    = "CNAME"
+#   content = "${var.cctv_tunnel_id}.cfargotunnel.com"
+#   proxied = true
+# }
