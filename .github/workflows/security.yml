@@ -1,8 +1,62 @@
-name: Security
-on: [push, pull_request]
+name: Security Checks
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
 jobs:
-  security:
+  secrets:
+    name: Secret Safety Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - run: echo "Checking for secrets..."
+
+      - name: Check for .env file
+        run: |
+          if [ -f .env ]; then
+            echo "ERROR: .env file is committed!"
+            exit 1
+          fi
+
+      - name: Check for Cloudflare credentials
+        run: |
+          if ls cloudflared/*.json 1> /dev/null 2>&1; then
+            echo "ERROR: Cloudflare JSON credentials committed!"
+            exit 1
+          fi
+          if ls *.pem 1> /dev/null 2>&1; then
+            echo "ERROR: PEM files committed!"
+            exit 1
+          fi
+
+      - name: Check for Tunnel tokens
+        run: |
+          if grep -rIn "eyJh" . | grep -v ".github"; then
+            echo "ERROR: Potential Cloudflare Tunnel JWT token found!"
+            exit 1
+          fi
+
+      - name: Check SMTP_PASSWORD
+        run: |
+          if grep -rIn "^SMTP_PASSWORD=" . | grep -v "placeholder" | grep -v "\.example" | grep -Eq "^SMTP_PASSWORD=.+"; then
+            echo "ERROR: Real SMTP_PASSWORD committed!"
+            exit 1
+          fi
+
+      - name: Check RTMP stream keys
+        run: |
+          if grep -rIn "RTMP_URL=" . | grep -v "placeholder" | grep -v "\.example"; then
+            echo "ERROR: Real RTMP stream key pattern found!"
+            exit 1
+          fi
+
+      - name: Check static-auth-secret
+        run: |
+          if grep -rIn "static-auth-secret" . | grep -v "<REDACTED>"; then
+            echo "ERROR: static-auth-secret found in codebase without being redacted!"
+            exit 1
+          fi
+
+      - name: All security checks passed
+        run: echo "Codebase looks clear of known secrets."
