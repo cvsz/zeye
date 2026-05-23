@@ -1,6 +1,9 @@
-# Home Assistant MQTT Sensor Example
+# Add this to your Home Assistant configuration.yaml
+# It monitors the MQTT topic for the camera's system state.
 mqtt:
   sensor:
-    - name: "zEye Camera 1 Status"
-      state_topic: "agentdvr/camera1/status"
+    - name: "zEye Front Door Status"
+      state_topic: "zeye/agentdvr/frontdoor/status"
       value_template: "{{ value_json.state }}"
+      json_attributes_topic: "zeye/agentdvr/frontdoor/attributes"
+      device_class: connectivity
