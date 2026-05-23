@@ -1,16 +1,12 @@
 [Unit]
-Description=zEye Agent DVR Docker Compose Stack
+Description=zEye Agent DVR
+After=docker.service
 Requires=docker.service
-After=docker.service network-online.target
-Wants=network-online.target
 
 [Service]
-Type=oneshot
-RemainAfterExit=yes
-WorkingDirectory=/home/zeazdev/zeye
-ExecStart=/usr/bin/docker compose up -d
-ExecStop=/usr/bin/docker compose down
-TimeoutStartSec=0
+Restart=always
+ExecStart=/usr/bin/docker compose -f /opt/zeye/docker-compose.yml up
+ExecStop=/usr/bin/docker compose -f /opt/zeye/docker-compose.yml down
 
 [Install]
 WantedBy=multi-user.target

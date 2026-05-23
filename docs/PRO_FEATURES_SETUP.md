@@ -1,3 +1,2 @@
-# zEye Pro Features Setup
-
-See generated script for full feature docs.
+# Pro Features Setup
+Valid license required for HD/4K, Cloud Uploads, etc.

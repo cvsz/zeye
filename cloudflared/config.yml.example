@@ -1,10 +1,6 @@
-# zEye Cloudflare Tunnel template
-# Protect with Cloudflare Access before exposing CCTV.
-#
-# tunnel: c3d6aea4-15d5-4178-ba0c-b463cd908205
-# credentials-file: /etc/cloudflared/c3d6aea4-15d5-4178-ba0c-b463cd908205.json
-#
-# ingress:
-#   - hostname: cctv.zeaz.dev
-#     service: http://127.0.0.1:9292
-#   - service: http_status:404
+tunnel: c3d6aea4-15d5-4178-ba0c-b463cd908205
+credentials-file: /etc/cloudflared/credentials.json
+ingress:
+  - hostname: cctv.zeaz.dev
+    service: http://127.0.0.1:9292
+  - service: http_status:404

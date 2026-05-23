@@ -1,28 +1,17 @@
-# zEye
+# zEye Agent DVR USB Webcam CCTV Stack
 
-Agent DVR USB webcam CCTV stack for Ubuntu + Docker.
+Welcome to the zEye Agent DVR CCTV stack for Ubuntu + Docker. This repository provides a secure, production-grade infrastructure deployment for Agent DVR, specifically optimized for USB webcams on local servers.
 
-## Working URLs
+## Features
 
-- Local: http://127.0.0.1:9292
-- LAN: http://192.168.1.104:9292 or http://192.168.1.100:9292
-- Cloudflare origin: http://127.0.0.1:9292
+- **Docker-based Deployment**: Uses `mekayelanik/ispyagentdvr:latest`.
+- **Secure by Default**: No public ports exposed directly. Internal port 8090 mapped to 9292 on host.
+- **Hardware Passthrough**: Ready for `/dev/video*` USB camera passthrough with root-camera mode.
+- **Agent DVR Pro Readiness**: Templates and guides for activating and configuring Pro features (requires active license).
+- **Cloudflare Access Ready**: Templates for securely exposing your instance via Cloudflare Tunnels (e.g., `cctv.zeaz.dev`).
 
-## Agent DVR UI
+## Security
 
-Use:
+This stack is designed so that your CCTV system is **not** exposed directly to the public internet. See docs/SECURITY.md for more details.
 
-```text
-Video Source:
-  Source Type = Local Device
-  Device      = /dev/video0
-
-Advanced:
-  Decoder     = CPU
-  GPU Decoder = Default
-  VLC Options = blank
-```
-
-## Notes
-
-`ffmpeg -list_formats` can end with "Immediate exit requested" after listing MJPEG/YUYV formats. That is normal.
+> **Note**: Do NOT commit any `.env` files or Cloudflare credentials to this repository.

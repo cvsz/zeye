@@ -11,8 +11,6 @@ services:
       AGENTDVR_WEBUI_PORT: "8090"
     ports:
       - "9292:8090"
-      - "3478:3478/udp"
-      - "50000-50100:50000-50100/udp"
     devices:
       - "/dev/video0:/dev/video0"
       - "/dev/video1:/dev/video1"

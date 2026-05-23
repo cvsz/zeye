@@ -1,7 +1,10 @@
 .env
-*.bak.*
-*.log
-cloudflared/*.json
-cloudflared/*.pem
-cloudflared/*.cert
-.cloudflared/
+.env.*
+!.env.example
+!.env.pro.example
+credentials.json
+*.token
+*.key
+*.pem
+__pycache__/
+*.pyc
