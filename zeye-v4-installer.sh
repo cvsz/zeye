@@ -1,4 +1,4 @@
 #!/bin/bash
 set -e
-echo "v4 installer..."
+echo "Invoking v4 install-zeye.sh..."
 ./install-zeye.sh "$@"
