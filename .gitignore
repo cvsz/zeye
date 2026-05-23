@@ -1,10 +1,33 @@
+# Runtime secrets
 .env
 .env.*
 !.env.example
 !.env.pro.example
-credentials.json
+
+# Cloudflare credentials
+cloudflared/*.json
+cloudflared/*.pem
+cloudflared/*.cert
+.cloudflared/
 *.token
 *.key
 *.pem
+
+# Runtime/generated
+*.log
+*.bak.*
+.repo-organize-backup/
 __pycache__/
 *.pyc
+.DS_Store
+
+# Local media / backups
+media/
+recordings/
+backups/
+*.mp4
+*.mkv
+*.avi
+*.jpg
+*.jpeg
+*.png

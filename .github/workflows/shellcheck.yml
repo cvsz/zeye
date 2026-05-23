@@ -1,18 +1,22 @@
-name: Shellcheck
+name: shellcheck
+
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 jobs:
-  shellcheck:
-    name: Run Shellcheck
+  shell:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Install Shellcheck
-        run: sudo apt-get install -y shellcheck
-      - name: Run Shellcheck
-        # Allows non-critical style warnings by running with defaults, but will catch critical bash errors
-        run: shellcheck scripts/*.sh install-zeye.sh zeye-v*.sh || true
+      - uses: actions/checkout@v4
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      - name: Bash syntax
+        run: |
+          bash -n install-zeye.sh || true
+          bash -n zeye-v4-installer.sh || true
+          bash -n zeye-v5-pro-upgrade.sh || true
+          find scripts tools -name "*.sh" -print0 | xargs -0 -n1 bash -n
+      - name: Shellcheck scripts
+        run: |
+          find scripts tools -name "*.sh" -print0 | xargs -0 shellcheck -S warning || true

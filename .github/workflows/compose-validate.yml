@@ -1,15 +1,13 @@
-name: Compose Validate
+name: compose-validate
+
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
 
 jobs:
-  validate:
-    name: Validate Docker Compose
+  compose:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Validate Compose Config
+      - uses: actions/checkout@v4
+      - name: Validate docker compose
         run: docker compose config
