@@ -1,1 +1,35 @@
-# terraform example
+# Terraform configuration example for Cloudflare Tunnel and Access Policy
+# Do not run `terraform apply` unless properly configured and secured.
+
+resource "cloudflare_tunnel" "cctv_tunnel" {
+  account_id = var.cloudflare_account_id
+  name       = "zeye-cctv-tunnel"
+  secret     = var.tunnel_secret
+}
+
+resource "cloudflare_record" "cctv_dns" {
+  zone_id = var.cloudflare_zone_id
+  name    = "cctv.zeaz.dev"
+  value   = cloudflare_tunnel.cctv_tunnel.cname
+  type    = "CNAME"
+  proxied = true
+}
+
+resource "cloudflare_access_application" "cctv_app" {
+  zone_id          = var.cloudflare_zone_id
+  name             = "zEye CCTV Access"
+  domain           = "cctv.zeaz.dev"
+  session_duration = "24h"
+}
+
+resource "cloudflare_access_policy" "cctv_policy" {
+  application_id = cloudflare_access_application.cctv_app.id
+  zone_id        = var.cloudflare_zone_id
+  name           = "Require Email Auth"
+  precedence     = "1"
+  decision       = "allow"
+
+  include {
+    email = ["admin@zeaz.dev"]
+  }
+}
