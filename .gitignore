@@ -1,11 +1,7 @@
 .env
-.env.*
-!.env.example
+*.bak.*
 *.log
-.DS_Store
-node_modules/
-.terraform/
-*.tfstate
-*.tfstate.*
 cloudflared/*.json
-cloudflared/*token*
+cloudflared/*.pem
+cloudflared/*.cert
+.cloudflared/

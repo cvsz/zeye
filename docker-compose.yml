@@ -3,26 +3,28 @@ services:
     image: mekayelanik/ispyagentdvr:latest
     container_name: zeye-agentdvr
     restart: unless-stopped
+    privileged: true
     environment:
-      PUID: "${PUID:-1000}"
-      PGID: "${PGID:-1000}"
-      TZ: "${TZ:-Asia/Bangkok}"
-      AGENTDVR_WEBUI_PORT: "${AGENTDVR_WEBUI_PORT:-9292}"
+      PUID: "0"
+      PGID: "0"
+      TZ: "Asia/Bangkok"
+      AGENTDVR_WEBUI_PORT: "8090"
     ports:
-      - "${AGENTDVR_HOST_PORT:-9292}:${AGENTDVR_WEBUI_PORT:-9292}"
+      - "9292:8090"
       - "3478:3478/udp"
       - "50000-50100:50000-50100/udp"
     devices:
-      - "${USB_VIDEO_DEVICE:-/dev/video0}:${USB_VIDEO_DEVICE:-/dev/video0}"
-    group_add:
-      - "video"
+      - "/dev/video0:/dev/video0"
+      - "/dev/video1:/dev/video1"
+      - "/dev/video2:/dev/video2"
+      - "/dev/video3:/dev/video3"
+    device_cgroup_rules:
+      - "c 81:* rmw"
     volumes:
-      - "${ZEYE_DATA_DIR:-/opt/zeye/agentdvr}/config:/AgentDVR/Media/XML"
-      - "${ZEYE_DATA_DIR:-/opt/zeye/agentdvr}/media:/AgentDVR/Media/WebServerRoot/Media"
-      - "${ZEYE_DATA_DIR:-/opt/zeye/agentdvr}/commands:/AgentDVR/Commands"
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:${AGENTDVR_WEBUI_PORT:-9292}/ >/dev/null 2>&1 || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 60s
+      - "/opt/zeye/config:/AgentDVR/Media/XML"
+      - "/opt/zeye/media:/AgentDVR/Media/WebServerRoot/Media"
+      - "/opt/zeye/commands:/AgentDVR/Commands"
+
+networks:
+  default:
+    name: zeye_default
