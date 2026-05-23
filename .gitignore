@@ -1,10 +1,7 @@
-# Runtime secrets
 .env
 .env.*
 !.env.example
 !.env.pro.example
-
-# Cloudflare credentials
 cloudflared/*.json
 cloudflared/*.pem
 cloudflared/*.cert
@@ -12,16 +9,15 @@ cloudflared/*.cert
 *.token
 *.key
 *.pem
-
-# Runtime/generated
 *.log
 *.bak.*
 .repo-organize-backup/
+zeye-repo-organizer/
+zeye-endgame-starter/
+zeye-endgame-final-fix/
 __pycache__/
 *.pyc
 .DS_Store
-
-# Local media / backups
 media/
 recordings/
 backups/

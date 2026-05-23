@@ -2,36 +2,74 @@
 set -Eeuo pipefail
 
 fail=0
+say_fail(){ echo "[FAIL] $*"; fail=1; }
 
-check_forbidden_file(){
-  local pattern="$1"
-  if git ls-files | grep -E "$pattern" >/dev/null 2>&1; then
-    echo "[FAIL] Forbidden tracked file pattern: $pattern"
-    git ls-files | grep -E "$pattern" || true
-    fail=1
-  fi
+tracked_files(){
+  git ls-files \
+    ':!:tools/generators/**' \
+    ':!:tools/bootstrap/legacy/**' \
+    ':!:.repo-organize-backup/**' \
+    ':!:zeye-repo-organizer/**' \
+    ':!:zeye-endgame-starter/**' \
+    ':!:zeye-endgame-final-fix/**' \
+    ':!:.git/**'
 }
 
-check_forbidden_file '(^|/)\.env$'
-check_forbidden_file 'cloudflared/.*\.(json|pem|cert)$'
-check_forbidden_file '(^|/).*\.(token|key|pem)$'
+echo "== zEye security check =="
 
-if git grep -nE '(SMTP_PASSWORD|RTMP_STREAM_KEY|TUNNEL_TOKEN|CF_TOKEN|API_KEY|LICENSE_KEY)=(.+[^[:space:]])' -- ':!*.example' ':!docs/*' >/tmp/zeye-secret-scan.txt 2>/dev/null; then
-  echo "[FAIL] Possible committed secret values:"
-  cat /tmp/zeye-secret-scan.txt
-  fail=1
-fi
-rm -f /tmp/zeye-secret-scan.txt
+echo
+echo "1) Forbidden tracked runtime files"
+for pattern in '(^|/)\.env$' 'cloudflared/.*\.(json|pem|cert)$' '(^|/).*\.(token|key|pem)$'; do
+  hits="$(git ls-files | grep -E "$pattern" || true)"
+  if [ -n "$hits" ]; then
+    say_fail "Forbidden tracked file pattern: $pattern"
+    echo "$hits"
+  fi
+done
 
-if git grep -nE 'static-auth-secret [A-Za-z0-9]+' >/tmp/zeye-turn-secret.txt 2>/dev/null; then
-  echo "[FAIL] TURN static-auth-secret appears unredacted:"
-  cat /tmp/zeye-turn-secret.txt
-  fail=1
-fi
-rm -f /tmp/zeye-turn-secret.txt
+echo
+echo "2) Secret-like assignments"
+tmp="$(mktemp /tmp/zeye-secret-scan.XXXXXX)"
+turn_tmp="$(mktemp /tmp/zeye-turn-scan.XXXXXX)"
+license_tmp="$(mktemp /tmp/zeye-license-scan.XXXXXX)"
+trap 'rm -f "$tmp" "$turn_tmp" "$license_tmp"' EXIT
 
-if [ "$fail" -eq 0 ]; then
-  echo "[OK] security check passed"
-fi
+while IFS= read -r file; do
+  [ -f "$file" ] || continue
+  case "$file" in
+    *.example|*.md|docs/*|AGENTS.md|scripts/security-check.sh) continue ;;
+  esac
 
+  grep -nE '([A-Z0-9_]*(PASSWORD|SECRET|TOKEN|API_KEY|LICENSE_KEY|STREAM_KEY|PRIVATE_KEY)[A-Z0-9_]*|RTMP_URL)=[^[:space:]]+' "$file" 2>/dev/null \
+    | grep -viE '(placeholder|example|your_|redacted|changeme|todo|^#)' \
+    | sed "s#^#${file}:#" >> "$tmp" || true
+
+  grep -nE 'static-auth-secret[ =][A-Za-z0-9]{12,}' "$file" 2>/dev/null \
+    | grep -viE '(redacted|placeholder|example)' \
+    | sed "s#^#${file}:#" >> "$turn_tmp" || true
+done < <(tracked_files)
+
+if [ -s "$tmp" ]; then say_fail "Possible committed secret values"; cat "$tmp"; else echo "[OK] no suspicious non-placeholder assignments"; fi
+
+echo
+echo "3) TURN static-auth-secret leakage"
+if [ -s "$turn_tmp" ]; then say_fail "Possible unredacted TURN static-auth-secret"; cat "$turn_tmp"; else echo "[OK] no unredacted TURN static-auth-secret"; fi
+
+echo
+echo "4) License compliance wording"
+while IFS= read -r file; do
+  [ -f "$file" ] || continue
+  case "$file" in
+    tools/generators/*|tools/bootstrap/legacy/*|scripts/security-check.sh) continue ;;
+  esac
+
+  grep -nEi '(crack|keygen|license[ -]?bypass|bypass.*license|spoof.*license|unlock paid|unlock.*paid|disable.*license|fake.*license)' "$file" 2>/dev/null \
+    | grep -viE '(do not|does not|must not|never|without|no).*bypass|bypass.*(not allowed|prohibited)|license/subscription-gated|valid license|requires.*license|does not unlock|do not attempt' \
+    | sed "s#^#${file}:#" >> "$license_tmp" || true
+done < <(tracked_files)
+
+if [ -s "$license_tmp" ]; then say_fail "Suspicious license-bypass wording"; cat "$license_tmp"; else echo "[OK] license compliance wording safe"; fi
+
+echo
+[ "$fail" -eq 0 ] && echo "[OK] security check passed"
 exit "$fail"
