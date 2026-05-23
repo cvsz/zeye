@@ -1,1 +1,9 @@
-# webhook example
+# Home Assistant Automation: Webhook Trigger for Motion
+alias: "zEye Motion Alert"
+trigger:
+  - platform: webhook
+    webhook_id: zeye_motion_alert_token_placeholder
+action:
+  - service: notify.notify
+    data:
+      message: "Motion detected on zEye CCTV!"

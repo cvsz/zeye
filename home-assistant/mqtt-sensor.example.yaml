@@ -1,1 +1,6 @@
-# mqtt example
+# Home Assistant MQTT Sensor Example
+mqtt:
+  sensor:
+    - name: "zEye Camera 1 Status"
+      state_topic: "agentdvr/camera1/status"
+      value_template: "{{ value_json.state }}"
