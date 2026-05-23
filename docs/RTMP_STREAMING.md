@@ -1,5 +1,11 @@
 # RTMP Streaming
 
-1. RTMP streaming requires a Pro license.
-2. Enter your RTMP URL and Stream Key into the Agent DVR UI.
-3. Keep your `RTMP_STREAM_KEY` in `.env.pro`. Never commit stream keys to the repository.
+Agent DVR allows you to push or pull RTMP streams. This is useful for streaming your CCTV feed to external platforms.
+**Note:** RTMP broadcasting functionality natively requires an active Agent DVR Pro license.
+
+## Configuration Warnings
+
+1. Obtain your RTMP Stream URL and Stream Key from your broadcast platform.
+2. Store your stream key safely in `.env.pro` under `RTMP_STREAM_KEY`.
+3. Configure the Agent DVR interface directly using your credentials.
+4. **CRITICAL:** Never commit your stream key or `.env.pro` file to any git repository!
